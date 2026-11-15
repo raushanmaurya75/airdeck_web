@@ -1,96 +1,90 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { CheckCircle2, Info, AlertTriangle, XCircle, X } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, Info, X } from 'lucide-react';
 
 const ToastContext = createContext();
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback(({ title, message, type = 'info', duration = 3500 }) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    const newToast = { id, title, message, type };
-
-    setToasts((prev) => [...prev, newToast]);
+  const addToast = useCallback((type, title, message = '', duration = 4000) => {
+    const id = Date.now() + Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, type, title, message }]);
 
     if (duration > 0) {
       setTimeout(() => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
       }, duration);
     }
-
-    return id;
   }, []);
 
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Helper shortcuts
-  const success = useCallback((title, message) => addToast({ title, message, type: 'success' }), [addToast]);
-  const info = useCallback((title, message) => addToast({ title, message, type: 'info' }), [addToast]);
-  const warning = useCallback((title, message) => addToast({ title, message, type: 'warning' }), [addToast]);
-  const error = useCallback((title, message) => addToast({ title, message, type: 'error' }), [addToast]);
+  const success = useCallback((title, message, duration) => addToast('success', title, message, duration), [addToast]);
+  const warning = useCallback((title, message, duration) => addToast('warning', title, message, duration), [addToast]);
+  const error = useCallback((title, message, duration) => addToast('error', title, message, duration), [addToast]);
+  const info = useCallback((title, message, duration) => addToast('info', title, message, duration), [addToast]);
 
   return (
-    <ToastContext.Provider value={{ addToast, removeToast, success, info, warning, error }}>
+    <ToastContext.Provider value={{ addToast, removeToast, success, warning, error, info }}>
       {children}
-      {/* Toast container */}
       <div
-        className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+        className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none font-sans"
         aria-live="polite"
       >
         {toasts.map((toast) => {
           const typeConfig = {
             success: {
-              border: 'border-emerald-500/40',
-              bg: 'bg-emerald-950/90 text-emerald-100',
-              icon: <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />,
+              border: 'border-[#10B981]/40',
+              bg: 'bg-surface text-primary-token',
+              icon: <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />,
             },
             warning: {
-              border: 'border-amber-500/40',
-              bg: 'bg-amber-950/90 text-amber-100',
-              icon: <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />,
+              border: 'border-[#F59E0B]/40',
+              bg: 'bg-surface text-primary-token',
+              icon: <AlertTriangle className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" />,
             },
             error: {
               border: 'border-rose-500/40',
-              bg: 'bg-rose-950/90 text-rose-100',
-              icon: <XCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />,
+              bg: 'bg-surface text-primary-token',
+              icon: <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />,
             },
             info: {
-              border: 'border-indigo-500/40',
-              bg: 'bg-slate-900/95 text-slate-100',
-              icon: <Info className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />,
+              border: 'border-hairline',
+              bg: 'bg-surface text-primary-token',
+              icon: <Info className="w-4 h-4 text-brand-accent shrink-0 mt-0.5" />,
             },
           }[toast.type] || {
-            border: 'border-slate-700',
-            bg: 'bg-slate-900/95 text-slate-100',
-            icon: <Info className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />,
+            border: 'border-hairline',
+            bg: 'bg-surface text-primary-token',
+            icon: <Info className="w-4 h-4 text-secondary-token shrink-0 mt-0.5" />,
           };
 
           return (
             <div
               key={toast.id}
-              className={`pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border shadow-2xl backdrop-blur-md transition-all duration-300 transform translate-y-0 opacity-100 animate-in slide-in-from-right-4 ${typeConfig.border} ${typeConfig.bg}`}
+              className={`pointer-events-auto flex items-start gap-3 p-3.5 rounded border shadow-xl backdrop-blur-md transition-all duration-200 ${typeConfig.border} ${typeConfig.bg}`}
             >
               {typeConfig.icon}
               <div className="flex-1 min-w-0">
                 {toast.title && (
-                  <h4 className="font-semibold text-sm leading-tight text-white mb-0.5">
+                  <h4 className="font-semibold text-xs leading-tight text-primary-token mb-0.5 font-sans">
                     {toast.title}
                   </h4>
                 )}
                 {toast.message && (
-                  <p className="text-xs text-slate-300 leading-relaxed break-words">
+                  <p className="text-xs text-secondary-token leading-relaxed break-words font-sans">
                     {toast.message}
                   </p>
                 )}
               </div>
               <button
                 onClick={() => removeToast(toast.id)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors shrink-0"
+                className="text-secondary-token hover:text-primary-token p-1 rounded transition-colors shrink-0 cursor-pointer"
                 aria-label="Dismiss toast"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           );

@@ -1,19 +1,12 @@
-// ============================================================================
-// AirDeck - Mock Devices Data
-// ============================================================================
-// NOTE: This file provides mock data representing connected client devices.
-// TODO: replace with real backend/socket logic (e.g. WebSocket / WebRTC signaling,
-// device discovery via mDNS / SSDP / Bonjour, and real-time presence events).
-// ============================================================================
 
 export const INITIAL_MOCK_DEVICES = [
   {
     id: 'dev-001',
     name: 'Living Room Sony Bravia 4K',
-    type: 'tv', // 'tv' | 'laptop' | 'phone' | 'tablet'
+    type: 'tv',
     model: 'Bravia XR A80L OLED',
     resolution: '3840 x 2160 (4K)',
-    status: 'online', // 'online' | 'offline'
+    status: 'online',
     ipAddress: '192.168.1.101',
     browser: 'Android TV / Chrome 124',
     lastSeen: 'Active now',
